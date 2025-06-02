@@ -1,0 +1,279 @@
+[
+    {
+        "name": "Wooden Cow",
+        "cost": 1,
+        "power": 1,
+        "text": "Vanilla",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "Vanilla",
+        "actions": []
+    },
+    {
+        "name": "Minotaur",
+        "cost": 5,
+        "power": 9,
+        "text": "Vanilla",
+        "actions": []
+    },
+    {
+        "name": "Titan",
+        "cost": 6,
+        "power": 12,
+        "text": "Vanilla",
+        "actions": []
+    },
+    {
+        "name": "Zeus",
+        "cost": 5,
+        "power": 7,
+        "text": "When Revealed: Lower the power of each card in your opponent's hand by 1.",
+        "actions": [
+            {
+                "type": "change-power-of-cards-by",
+                "trigger": "on-reveal",
+                "target": "opponents-hand",
+                "power": -1
+            }
+        ]
+    },
+    {
+        "name": "Ares",
+        "cost": 3,
+        "power": 3,
+        "text": "When Revealed: Gain +2 power for each enemy card here.",
+        "actions": [
+            {
+                "type": "gain-power-per-target",
+                "trigger": "on-reveal",
+                "target": "enemy-cards-here",
+                "power": 2
+            }
+        ]
+    },
+    {
+        "name": "Medusa",
+        "cost": 6,
+        "power": 9,
+        "text": "When ANY other card is played here, lower that card's power by 1.",
+        "actions": [
+            {
+                "type": "change-power-of-cards-by",
+                "trigger": "on-card-played-here",
+                "target": "context-target",
+                "power": -1
+            }
+        ]
+    },
+    {
+        "name": "Cyclops",
+        "cost": 5,
+        "power": 2,
+        "text": "When Revealed: Discard your other cards here, gain +2 power for each discarded.",
+        "actions": [
+            {
+                "type": "discard-and-gain-power-per-target",
+                "trigger": "on-reveal",
+                "target": "other-cards-here",
+                "power": 2
+            }
+        ]
+    },
+    {
+        "name": "Poseidon",
+        "cost": 3,
+        "power": 5,
+        "text": "When Revealed: Move away an enemy card here with the lowest power.",
+        "actions": [
+            {
+                "type": "move-away-card"
+            }
+        ]
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    },
+    {
+        "name": "Pegasus",
+        "cost": 3,
+        "power": 5,
+        "text": "",
+        "actions": []
+    }
+]

@@ -1,0 +1,281 @@
+---@class Card
+---@field name string
+---@field cost integer
+---@field power integer
+---@field text string
+---@field owner Player
+---@field hasUniquePower boolean
+---@field location ?Location
+---@field isDiscarded boolean
+---@field prototype ?Card
+---@field revealed boolean
+Card = {hasUniquePower=false}
+Card.mt = {__index=Card}
+
+---Called when a card is revealed
+function Card:whenRevealed()
+end
+
+---Called on end of turn
+function Card:endOfTurn()
+end
+
+---Called on discarded
+function Card:discarded()
+end
+
+---Called when another card is played
+---@param card Card
+function Card:cardPlayed(card)
+end
+
+-- Sandbox Functions
+
+function Card:discard()
+    Game:discard(self)
+end
+
+function Card:changePower(n)
+    self.power = self.power + n
+end
+
+function Card:setPower(n)
+    self.power = n
+end
+
+function Card:changeCost(n)
+    self.cost = self.cost + n
+end
+
+function Card:setCost(n)
+    self.cost = n
+end
+
+function Card:moveAway()
+    Game:moveAway(self)
+end
+
+---Spawn a copy of this card (based on prototype)
+---
+---The card will have the prototype field set (prototypes should NOT have this set)
+---@return Card
+function Card:spawn()
+    if self.prototype ~= nil then
+        return self.prototype:spawn()
+    else
+        local card = {}
+        setmetatable(card, {__index=self})
+        card.prototype = self
+        return card
+    end
+end
+
+---Create a card prototype
+---@param name string
+---@param cost integer
+---@param power integer
+---@param text string
+---@return Card
+function Card:makePrototype(name, cost, power, text)
+    local card = {}
+    setmetatable(card, {__index=self})
+    card.name = name
+    card.cost = cost
+    card.power = power
+    card.text = text
+    card.revealed = false
+    return card
+end
+
+---Draw a card at a position
+---@param position Vector
+function Card:draw(position)
+    love.graphics.push()
+    love.graphics.translate(position.x, position.y)
+    -- TODO
+    love.graphics.pop()
+end
+
+function Card:reveal()
+    self.revealed = true
+    self:whenRevealed()
+end
+
+--------------------------------------------
+---------------- Card Types ----------------
+--------------------------------------------
+
+---@class Zeus: Card
+Zeus = Card:makePrototype("Zeus", 5, 7, "When Revealed: Lower the power of each card in your opponent's hand by 1.")
+function Zeus:whenRevealed()
+    local opponent = Game:opponentOf(self.owner)
+    for index, card in ipairs(opponent.hand) do
+        card:changePower(-1)
+    end
+end
+
+---@class Ares: Card
+Ares = Card:makePrototype("Ares", 3, 3, "When Revealed: Gain +2 power for each enemy card here.")
+function Ares:whenRevealed()
+    local opponent = Game:opponentOf(self.owner)
+    for index, card in ipairs(self.location.cards) do
+        if card.owner == opponent then
+            self:changePower(2)
+        end
+    end
+end
+
+---@class Medusa: Card
+Medusa = Card:makePrototype("Medusa", 6, 9, "When ANY other card is played here, lower that card's power by 1.")
+function Medusa:cardPlayed(card)
+    if card.location == self.location then
+        card:changePower(-1)
+    end
+end
+
+---@class Cyclops: Card
+Cyclops = Card:makePrototype("Cyclops", 5, 2, "When Revealed: Discard your other cards here, gain +2 power for each discarded.")
+function Cyclops:whenRevealed()
+    local opponent = Game:opponentOf(self.owner)
+    for index, card in ipairs(self.location.cards) do
+        if card.owner == opponent then
+            self:changePower(2)
+            card:discard()
+        end
+    end
+end
+
+---@class Poseidon: Card
+Poseidon = Card:makePrototype("Poseidon", 3, 5, "When Revealed: Move away an enemy card here with the lowest power.")
+function Poseidon:whenRevealed()
+    local lowest_power_card = nil
+    local opponent = Game:opponentOf(self.owner)
+    for index, card in ipairs(self.location.cards) do
+        if card.owner == opponent then
+            if lowest_power_card == nil then
+                lowest_power_card = card
+            elseif lowest_power_card.power > card.power then
+                lowest_power_card = card
+            end
+        end
+    end
+
+    if lowest_power_card ~= nil then
+        Game:moveAway(lowest_power_card)
+    end
+end
+
+---@class Artemis: Card
+Artemis = Card:makePrototype("Artemis", 4, 6, "When Revealed: Gain +5 power if there is exactly one enemy card here.")
+function Artemis:whenRevealed()
+    local enemy_card_count = 0
+    local opponent = Game:opponentOf(self.owner)
+    for index, card in ipairs(self.location.cards) do
+        if card.owner == opponent then
+            enemy_card_count = enemy_card_count + 1
+        end
+    end
+
+    if enemy_card_count == 1 then
+        self:changePower(5)
+    end
+end
+
+---@class Hera: Card
+Hera = Card:makePrototype("Hera", 6, 8, "When Revealed: Give cards in your hand +1 power.")
+function Hera:whenRevealed()
+    for index, card in ipairs(self.owner.hand) do
+        card:changePower(1)
+    end
+end
+
+
+---@class Demeter: Card
+Demeter = Card:makePrototype("Demeter", 4, 6, "When Revealed: Both players draw a card.")
+function Demeter:whenRevealed()
+    Game.players[1]:drawCard()
+    Game.players[2]:drawCard()
+end
+
+---@class Hades: Card
+Hades = Card:makePrototype("Hades", 3, 1, "When Revealed: Gain +2 power for each card in your discard pile.")
+function Hades:whenRevealed()
+    self:changePower(2 * #self.owner.discardPile)
+end
+
+---@class Hercules: Card
+Hercules = Card:makePrototype("Hercules", 5, 7, "When Revealed: Doubles its power if its the strongest card here.")
+function Hercules:whenRevealed()
+    for index, card in ipairs(self.location.cards) do
+        if card.power > self.power then
+            return -- exit from function if there is a stronger card here
+        end
+    end
+
+    self:changePower(self.power)
+end
+
+---@class Dionysus: Card
+Dionysus = Card:makePrototype("Dionysus", 4, 2, "When Revealed: Gain +2 power for each of your other cards here.")
+function Dionysus:whenRevealed()
+    local yourCards = 0
+    for index, card in ipairs(self.location.cards) do
+        if card ~= self and card.owner == self.location then
+            yourCards = yourCards + 1
+        end
+    end
+
+    self:changePower(2 * yourCards)
+end
+
+---@class Hermes: Card
+Hermes = Card:makePrototype("Hermes", 4, 7, "When Revealed: Moves to another location.")
+function Hermes:whenRevealed()
+    Game:moveAway(self)
+end
+
+---@class Hydra: Card
+Hydra = Card:makePrototype("Hydra", 7, 11, "Add two copies to your hand when this card is discarded.")
+function Hydra:discarded()
+    self.owner:addToHand(self:spawn())
+    self.owner:addToHand(self:spawn())
+end
+
+---@class ShipOfTheseus: Card
+ShipOfTheseus = Card:makePrototype("Ship of Theseus", 2, 2, "When Revealed: Add a copy with +1 power to your hand.")
+function ShipOfTheseus:whenRevealed()
+    local card = self:spawn()
+    card:setPower(self.power + 1)
+    self.owner:addToHand(card)
+end
+
+---@class SwordOfDamocles: Card
+SwordOfDamocles = Card:makePrototype("Sword of Damocles", 4, 6, "End of Turn: Loses 1 power if not winning this location.")
+function SwordOfDamocles:endOfTurn()
+    if not self.location:isWinning(self.owner) then
+        self:changePower(-1)
+    end
+end
+
+Cards = {
+    Card:makePrototype("Wooden Cow", 1, 1, "Vanilla"),
+    Card:makePrototype("Pegasus", 3, 5, "Vanilla"),
+    Card:makePrototype("Minotaur", 5, 9, "Vanilla"),
+    Card:makePrototype("Titan", 6, 12, "Vanilla"),
+    Zeus,
+    Ares,
+    Medusa,
+    Cyclops,
+    Poseidon,
+    Artemis,
+    Hera,
+    Demeter,
+    Hades,
+    Hercules,
+    Dionysus,
+    Hermes,
+    Hydra,
+    ShipOfTheseus,
+    SwordOfDamocles
+}
+

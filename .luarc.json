@@ -1,0 +1,9 @@
+{
+    "workspace.checkThirdParty": false,
+    "workspace.library": ["${3rd}/love2d/library",
+        "${addons}/love2d/module/library"],
+    "runtime.version": "LuaJIT",
+    "runtime.special": {
+        "love.filesystem.load": "loadfile"
+    }
+}
