@@ -21,8 +21,9 @@ end
 
 function love.mousepressed(x, y)
     -- grabbing code
-
     if Game.hoveringSubmit then
         Game:runTurn()
+    elseif Game.hoveredCard ~= nil then
+        Game:grab()
     end
 end

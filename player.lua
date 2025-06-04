@@ -139,10 +139,11 @@ function Player:drawManaBar()
 end
 
 function Player:setupHand()
-    self.hand = {self:drawCard(),self:drawCard(),self:drawCard()}
+    self.hand = {self:drawCard(),self:drawCard(),self:drawCard(),self:drawCard()}
     self.hand[1].grabbable = true
     self.hand[2].grabbable = true
     self.hand[3].grabbable = true
+    self.hand[4].grabbable = true
 end
 
 function Player:drawDeck(top)

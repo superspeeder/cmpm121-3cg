@@ -10,10 +10,14 @@ Game = {
     },
     turnNumber = 1,
     hoveringSubmit = false,
-    hoveredCard = nil
+    hoveredCard = nil,
+    hoverSpot = nil,
+    grabbedCard = nil,
+    grabSpot = nil
 }
 
-
+---Discard a card
+---@param card Card
 function Game:discard(card)
     card:discarded()
 
@@ -44,7 +48,6 @@ end
 
 --- Run a turn
 function Game:runTurn()
-    print("whee")
     for index, location in ipairs(self.locations) do
         location:resolve()
     end
@@ -57,6 +60,9 @@ function Game:runTurn()
 
     for index, player in ipairs(self.players) do
         player.manaBank = self.turnNumber
+        if #player.hand < 7 and #player.deck > 0 then
+            player:addToHand(player:drawCard())
+        end
     end
 end
 
@@ -82,7 +88,7 @@ end
 
 function Game:draw()
     self.hoveredCard = nil
-    
+
     love.graphics.clear(BACKGROUND)
     self.locations[1]:draw(LOCATION_1_POSITION)
     self.locations[2]:draw(LOCATION_2_POSITION)
@@ -98,8 +104,63 @@ function Game:draw()
     self.players[2]:drawDiscard(true)
 
     self.players[1]:drawManaBar()
+
+    if self.grabbedCard ~= nil then
+        self.grabbedCard:draw(Vector:new(love.mouse.getX(), love.mouse.getY()) - self.grabSpot, true)
+    end
 end
 
 function Game:update()
+    if self.grabbedCard ~= nil and not love.mouse.isDown(1) then
+        self:grabRelease()
+    end
 end
 
+function Game:grab()
+    if self.hoveredCard == nil then
+        return
+    end
+
+    if self.hoveredCard.cost > self.players[1].manaBank then
+        return
+    end
+
+    self.grabbedCard = self.hoveredCard
+    self.grabSpot = self.hoverSpot
+    self.hoveredCard = nil
+    self.hoverSpot = nil
+    self.grabbedCard.owner:removeFromHand(self.grabbedCard)
+end
+
+function Game:grabRelease()
+    local mx = love.mouse.getX()
+    local my = love.mouse.getY()
+    if my > LOCATION_Y and my < LOCATION_Y + LOCATION_HEIGHT then
+        if mx > LOCATION_1_POSITION.x and mx < LOCATION_1_POSITION.x + LOCATION_WIDTH then
+            if self.locations[1]:canPlaceCard(self.grabbedCard) then
+                self.locations[1]:add(self.grabbedCard)
+                self.players[1].manaBank = self.players[1].manaBank - self.grabbedCard.cost
+                self.grabbedCard = nil
+                return
+            end
+        elseif mx > LOCATION_2_POSITION.x and mx < LOCATION_2_POSITION.x + LOCATION_WIDTH then
+            if self.locations[2]:canPlaceCard(self.grabbedCard) then
+                self.locations[2]:add(self.grabbedCard)
+                self.players[1].manaBank = self.players[1].manaBank - self.grabbedCard.cost
+                self.grabbedCard = nil
+                return
+            end
+
+        elseif mx > LOCATION_3_POSITION.x and mx < LOCATION_3_POSITION.x + LOCATION_WIDTH then
+            if self.locations[3]:canPlaceCard(self.grabbedCard) then
+                self.locations[3]:add(self.grabbedCard)
+                self.players[1].manaBank = self.players[1].manaBank - self.grabbedCard.cost
+                self.grabbedCard = nil
+                return
+            end
+        end
+    end
+
+    self.grabbedCard.owner:addToHand(self.grabbedCard)
+    self.grabbedCard = nil
+end

@@ -22,6 +22,7 @@ end
 function Location:add(card)
     table.insert(self.cards, #self.cards + 1, card)
     card.location = self
+    card.grabbable = false
 end
 
 function Location:remove(card)
@@ -56,17 +57,25 @@ function Location:resolve()
     if self.winner ~= nil then
         if self.winner.index == 1 then
             for index, card in ipairs(cards1) do
-                card:reveal()
+                if not card.revealed then
+                    card:reveal()
+                end
             end
             for index, card in ipairs(cards2) do
-                card:reveal()
+                if not card.revealed then
+                    card:reveal()
+                end
             end
         else
             for index, card in ipairs(cards2) do
-                card:reveal()
+                if not card.revealed then
+                    card:reveal()
+                end
             end
             for index, card in ipairs(cards1) do
-                card:reveal()
+                if not card.revealed then
+                    card:reveal()
+                end
             end
         end
     else

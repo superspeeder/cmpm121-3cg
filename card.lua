@@ -101,12 +101,13 @@ function Card:draw(position, revealOverride)
 
     local mx, my = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
 
-    if self.grabbable and self.owner.index == 1 and mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
+    if self.grabbable and Game.grabbedCard == nil and self.owner.index == 1 and mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
         love.graphics.setColor({0.0,0.0,0.0,0.3})
         love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
         love.graphics.translate(0, -4)
 
         Game.hoveredCard = self
+        Game.hoverSpot = Vector:new(mx, my)
     end
 
 
@@ -177,12 +178,15 @@ end
 ---@class Cyclops: Card
 Cyclops = Card:makePrototype("Cyclops", 5, 2, "When Revealed: Discard your other cards here, gain +2 power for each discarded.")
 function Cyclops:whenRevealed()
-    local opponent = Game:opponentOf(self.owner)
+    local cardsToDiscard = {}
     for index, card in ipairs(self.location.cards) do
-        if card.owner == opponent then
+        if card.owner == self.owner and card ~= self then
             self:changePower(2)
-            card:discard()
+            table.insert(cardsToDiscard, card)
         end
+    end
+    for index, card in ipairs(cardsToDiscard) do
+        card:discard()
     end
 end
 
@@ -261,7 +265,7 @@ Dionysus = Card:makePrototype("Dionysus", 4, 2, "When Revealed: Gain +2 power fo
 function Dionysus:whenRevealed()
     local yourCards = 0
     for index, card in ipairs(self.location.cards) do
-        if card ~= self and card.owner == self.location then
+        if card ~= self and card.owner == self.owner then
             yourCards = yourCards + 1
         end
     end
