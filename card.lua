@@ -101,7 +101,7 @@ function Card:draw(position, revealOverride)
 
     local mx, my = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
 
-    if mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
+    if self.grabbable and self.owner.index == 1 and mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
         love.graphics.setColor({0.0,0.0,0.0,0.3})
         love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
         love.graphics.translate(0, -4)

@@ -80,11 +80,11 @@ function Player:autobuildDeck()
     while #self.deck < 20 do
         local cardN = love.math.random(#Cards)
         if counters[cardN] ~= nil and counters[cardN] < 2 then
-            table.insert(self.deck, #self.deck + 1, Cards[cardN])
+            table.insert(self.deck, #self.deck + 1, Cards[cardN]:spawn(self))
             counters[cardN] = counters[cardN] + 1
         elseif counters[cardN] == nil then
             counters[cardN] = 1
-            table.insert(self.deck, #self.deck + 1, Cards[cardN])
+            table.insert(self.deck, #self.deck + 1, Cards[cardN]:spawn(self))
         end
     end
 end
@@ -140,6 +140,9 @@ end
 
 function Player:setupHand()
     self.hand = {self:drawCard(),self:drawCard(),self:drawCard()}
+    self.hand[1].grabbable = true
+    self.hand[2].grabbable = true
+    self.hand[3].grabbable = true
 end
 
 function Player:drawDeck(top)
