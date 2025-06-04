@@ -9,7 +9,8 @@
 ---@field isDiscarded boolean
 ---@field prototype ?Card
 ---@field revealed boolean
-Card = {hasUniquePower=false}
+---@field grabbable boolean
+Card = {hasUniquePower=false,grabbable=false}
 Card.mt = {__index=Card}
 
 ---Called when a card is revealed
@@ -58,14 +59,16 @@ end
 ---Spawn a copy of this card (based on prototype)
 ---
 ---The card will have the prototype field set (prototypes should NOT have this set)
+---@param owner ?Player
 ---@return Card
-function Card:spawn()
+function Card:spawn(owner)
     if self.prototype ~= nil then
-        return self.prototype:spawn()
+        return self.prototype:spawn(owner)
     else
         local card = {}
         setmetatable(card, {__index=self})
         card.prototype = self
+        card.owner = owner
         return card
     end
 end
@@ -89,10 +92,48 @@ end
 
 ---Draw a card at a position
 ---@param position Vector
-function Card:draw(position)
+---@param revealOverride ?boolean
+function Card:draw(position, revealOverride)
+    local revealed = revealOverride or self.revealed
+
     love.graphics.push()
     love.graphics.translate(position.x, position.y)
-    -- TODO
+
+    local mx, my = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
+
+    if mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
+        love.graphics.setColor({0.0,0.0,0.0,0.3})
+        love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
+        love.graphics.translate(0, -4)
+
+        Game.hoveredCard = self
+    end
+
+
+    if revealed then
+        love.graphics.setColor(WHITE)
+        love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
+
+        love.graphics.setColor(BLACK)
+        love.graphics.printf(self.name, CARD_MARGIN, CARD_MARGIN, CARD_WIDTH - CARD_MARGIN * 2 - 16)
+
+        love.graphics.setColor(MANA_COLOR)
+        love.graphics.printf(self.cost, CARD_MARGIN, CARD_MARGIN, CARD_WIDTH - CARD_MARGIN * 2, "right")
+
+        love.graphics.setColor({0.7,0,0})
+        love.graphics.printf(self.power, CARD_MARGIN, CARD_MARGIN + 14, CARD_WIDTH - CARD_MARGIN * 2, "right")
+
+        love.graphics.setColor({0.2,0.2,0.2})
+        love.graphics.printf(self.text, CARD_MARGIN, CARD_MARGIN + 32, CARD_WIDTH - CARD_MARGIN * 2)
+    else
+        love.graphics.setColor(CARD_UNREVEALED_COLOR)
+        love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
+    end
+
+    love.graphics.setColor(BLACK)
+    love.graphics.setLineWidth(2)
+    love.graphics.rectangle("line", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
+
     love.graphics.pop()
 end
 
@@ -145,25 +186,25 @@ function Cyclops:whenRevealed()
     end
 end
 
----@class Poseidon: Card
-Poseidon = Card:makePrototype("Poseidon", 3, 5, "When Revealed: Move away an enemy card here with the lowest power.")
-function Poseidon:whenRevealed()
-    local lowest_power_card = nil
-    local opponent = Game:opponentOf(self.owner)
-    for index, card in ipairs(self.location.cards) do
-        if card.owner == opponent then
-            if lowest_power_card == nil then
-                lowest_power_card = card
-            elseif lowest_power_card.power > card.power then
-                lowest_power_card = card
-            end
-        end
-    end
+-- ---@class Poseidon: Card
+-- Poseidon = Card:makePrototype("Poseidon", 3, 5, "When Revealed: Move away an enemy card here with the lowest power.")
+-- function Poseidon:whenRevealed()
+--     local lowest_power_card = nil
+--     local opponent = Game:opponentOf(self.owner)
+--     for index, card in ipairs(self.location.cards) do
+--         if card.owner == opponent then
+--             if lowest_power_card == nil then
+--                 lowest_power_card = card
+--             elseif lowest_power_card.power > card.power then
+--                 lowest_power_card = card
+--             end
+--         end
+--     end
 
-    if lowest_power_card ~= nil then
-        Game:moveAway(lowest_power_card)
-    end
-end
+--     if lowest_power_card ~= nil then
+--         Game:moveAway(lowest_power_card)
+--     end
+-- end
 
 ---@class Artemis: Card
 Artemis = Card:makePrototype("Artemis", 4, 6, "When Revealed: Gain +5 power if there is exactly one enemy card here.")
@@ -228,11 +269,11 @@ function Dionysus:whenRevealed()
     self:changePower(2 * yourCards)
 end
 
----@class Hermes: Card
-Hermes = Card:makePrototype("Hermes", 4, 7, "When Revealed: Moves to another location.")
-function Hermes:whenRevealed()
-    Game:moveAway(self)
-end
+-- ---@class Hermes: Card
+-- Hermes = Card:makePrototype("Hermes", 4, 7, "When Revealed: Moves to another location.")
+-- function Hermes:whenRevealed()
+--     Game:moveAway(self)
+-- end
 
 ---@class Hydra: Card
 Hydra = Card:makePrototype("Hydra", 7, 11, "Add two copies to your hand when this card is discarded.")
@@ -266,14 +307,14 @@ Cards = {
     Ares,
     Medusa,
     Cyclops,
-    Poseidon,
+    -- Poseidon,
     Artemis,
     Hera,
     Demeter,
     Hades,
     Hercules,
     Dionysus,
-    Hermes,
+    -- Hermes,
     Hydra,
     ShipOfTheseus,
     SwordOfDamocles

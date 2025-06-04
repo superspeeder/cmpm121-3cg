@@ -20,7 +20,7 @@ end
 ---Add a card
 ---@param card Card
 function Location:add(card)
-    table.insert(self.cards, #self.cards, card)
+    table.insert(self.cards, #self.cards + 1, card)
     card.location = self
 end
 
@@ -47,9 +47,9 @@ function Location:resolve()
 
     for index, card in ipairs(self.cards) do
         if card.owner.index == 1 then
-            table.insert(cards1, #cards1, card)
+            table.insert(cards1, #cards1 + 1, card)
         else
-            table.insert(cards2, #cards2, card)
+            table.insert(cards2, #cards2 + 1, card)
         end
     end
 
@@ -97,4 +97,56 @@ function Location:endOfTurn()
     for index, card in ipairs(self.cards) do
         card:endOfTurn()
     end
+end
+
+function Location:reset()
+    self.winner = nil
+    self.cards = {}
+end
+
+---Check if a card can be placed
+---@param card Card
+---@return boolean
+function Location:canPlaceCard(card)
+    if #self.cards >= 8 then
+        return false
+    end
+
+    local sameOwnerCount = 0
+    for index, c in ipairs(self.cards) do
+        if c.owner == card.owner then
+            sameOwnerCount = sameOwnerCount + 1
+        end
+    end
+
+    return sameOwnerCount < 4
+end
+
+---Draw a location
+---@param position Vector
+function Location:draw(position)
+    love.graphics.push()
+    love.graphics.translate(position.x, position.y)
+
+    love.graphics.setColor(LOCATION_COLOR)
+    love.graphics.rectangle("fill", 0, 0, LOCATION_WIDTH, LOCATION_HEIGHT, 2)
+
+    local p1c = 0
+    local p2c = 0
+    for index, card in ipairs(self.cards) do
+        local x, y
+        if card.owner.index == 2 then
+            x = (CARD_WIDTH + CARD_GAP) * p1c + CARD_GAP
+            y = CARD_GAP;
+            p1c = p1c + 1
+        else
+            x = (CARD_WIDTH + CARD_GAP) * p2c + CARD_GAP
+            y = CARD_GAP * 4 + CARD_HEIGHT;
+            p2c = p2c + 1
+        end
+
+        card:draw(Vector:new(x, y))
+    end
+
+    love.graphics.pop()
 end

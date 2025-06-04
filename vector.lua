@@ -10,6 +10,10 @@
 ---@operator unm: Vector
 Vector = {x=0,y=0}
 
+---Create a new vector
+---@param x number
+---@param y number
+---@return Vector
 function Vector:new(x, y)
     local o = {}
     setmetatable(o, Vector.mt)
