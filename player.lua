@@ -202,3 +202,35 @@ function Player:drawSubmitButton()
 
     love.graphics.pop()
 end
+
+function Player:autoplay()
+    local bestPlayableCard = self:bestPlayableCard()
+    while bestPlayableCard ~= nil do
+        local locations = Game:pickRandomValidLocation(self.hand[bestPlayableCard])
+        if locations == nil or #locations == 0 then
+            break
+        end
+
+        local card = self.hand[bestPlayableCard]
+        self.manaBank = self.manaBank - card.cost
+        table.remove(self.hand, bestPlayableCard)
+
+        local location = locations[love.math.random(#locations)]
+        location:add(card)
+
+        bestPlayableCard = self:bestPlayableCard()
+    end
+end
+
+---@return integer?
+function Player:bestPlayableCard()
+    local highestPower = 0
+    local bestCard = nil
+    for index, card in ipairs(self.hand) do
+        if card.cost <= self.manaBank and card.power > highestPower then
+            bestCard = index
+        end
+    end
+    
+    return bestCard
+end

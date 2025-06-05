@@ -93,7 +93,8 @@ end
 ---Draw a card at a position
 ---@param position Vector
 ---@param revealOverride ?boolean
-function Card:draw(position, revealOverride)
+---@param unrevealedShow ?boolean
+function Card:draw(position, revealOverride, unrevealedShow)
     local revealed = revealOverride or self.revealed
 
     love.graphics.push()
@@ -112,7 +113,11 @@ function Card:draw(position, revealOverride)
 
 
     if revealed then
-        love.graphics.setColor(WHITE)
+        if unrevealedShow then
+            love.graphics.setColor({1.0,0.8,0.8})
+        else
+            love.graphics.setColor(WHITE)
+        end
         love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
 
         love.graphics.setColor(BLACK)
@@ -238,8 +243,12 @@ end
 ---@class Demeter: Card
 Demeter = Card:makePrototype("Demeter", 4, 6, "When Revealed: Both players draw a card.")
 function Demeter:whenRevealed()
-    Game.players[1]:drawCard()
-    Game.players[2]:drawCard()
+    if #Game.players[1].hand < 7 then
+        Game.players[1]:addToHand(Game.players[1]:drawCard())
+    end
+    if #Game.players[2].hand < 7 then
+        Game.players[2]:addToHand(Game.players[2]:drawCard())
+    end
 end
 
 ---@class Hades: Card

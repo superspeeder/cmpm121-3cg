@@ -19,7 +19,8 @@ function love.update(dt)
     Game:update()
 end
 
-function love.mousepressed(x, y)
+function love.mousepressed(x, y, button, istouch, presses)
+    if Game.gameOver then Game:setup() end
     -- grabbing code
     if Game.hoveringSubmit then
         Game:runTurn()

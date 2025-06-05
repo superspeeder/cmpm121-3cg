@@ -80,6 +80,30 @@ function Location:resolve()
         end
     else
         self.winner = Game.players[love.math.random(2)] -- flip a coin for winner
+        
+        if self.winner.index == 1 then
+            for index, card in ipairs(cards1) do
+                if not card.revealed then
+                    card:reveal()
+                end
+            end
+            for index, card in ipairs(cards2) do
+                if not card.revealed then
+                    card:reveal()
+                end
+            end
+        else
+            for index, card in ipairs(cards2) do
+                if not card.revealed then
+                    card:reveal()
+                end
+            end
+            for index, card in ipairs(cards1) do
+                if not card.revealed then
+                    card:reveal()
+                end
+            end
+        end
     end
 
     local power1 = 0
@@ -154,7 +178,7 @@ function Location:draw(position)
             p2c = p2c + 1
         end
 
-        card:draw(Vector:new(x, y))
+        card:draw(Vector:new(x, y), card.owner.index == 1, not card.revealed)
     end
 
     love.graphics.pop()
