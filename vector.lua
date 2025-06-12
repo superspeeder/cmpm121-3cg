@@ -54,6 +54,18 @@ function Vector:tostring()
     return "("..tostring(self.x)..", "..tostring(self.y)..")";
 end
 
+---Apply current transforms to the vector
+---@return Vector
+function Vector:applyCurrentTransforms()
+    return Vector:new(love.graphics.transformPoint(self.x, self.y))
+end
+
+---Inverse current transforms on vector (unapply transforms to return from screen space into the space of the current transforms)
+---@return Vector
+function Vector:inverseTransform()
+    return Vector:new(love.graphics.inverseTransformPoint(self.x, self.y))
+end
+
 Vector.mt = {
     __index = Vector,
     __add = Vector.add,

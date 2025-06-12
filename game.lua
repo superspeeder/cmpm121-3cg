@@ -16,6 +16,8 @@ Game = {
     grabSpot = nil,
     gameOver = false,
     winner = nil,
+    deckbuildingActive = false,
+    deckBuilt = false
 }
 
 ---Discard a card
@@ -31,12 +33,6 @@ function Game:discard(card)
 
     card.owner:addToDiscardPile(card)
     card.isDiscarded = true
-end
-
-
-
-function Game:moveAway(card)
-    -- TODO
 end
 
 ---Get the opponent of a player
@@ -96,6 +92,10 @@ function Game:setup()
     self.normalfont = love.graphics.getFont()
     self.bigfont = love.graphics.newFont(48)
 
+    if not self.deckBuilt then
+        DeckbuildingScreen:begin(self.players[1])
+    end
+
     self.turnNumber = 1
     self.players[1]:autobuildDeck()
     self.players[1]:shuffleDeck()
@@ -135,8 +135,13 @@ end
 
 function Game:draw()
     self.hoveredCard = nil
-
     love.graphics.clear(BACKGROUND)
+
+    if self.deckbuildingActive then
+        DeckbuildingScreen:draw()
+        return
+    end
+
     self.locations[1]:draw(LOCATION_1_POSITION)
     self.locations[2]:draw(LOCATION_2_POSITION)
     self.locations[3]:draw(LOCATION_3_POSITION)
@@ -177,6 +182,8 @@ function Game:draw()
 end
 
 function Game:update()
+    if self.deckbuildingActive then return end
+    
     if self.grabbedCard ~= nil and (not love.mouse.isDown(1) or self.gameOver) then
         self:grabRelease()
     end
@@ -184,6 +191,13 @@ end
 
 function Game:grab()
     if self.hoveredCard == nil then
+        return
+    end
+
+    if self.deckbuildingActive then
+        DeckbuildingScreen:onClicked(self.hoveredCard)
+        self.hoveredCard = nil
+        self.hoverSpot = nil
         return
     end
 

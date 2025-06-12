@@ -52,10 +52,6 @@ function Card:setCost(n)
     self.cost = n
 end
 
-function Card:moveAway()
-    Game:moveAway(self)
-end
-
 ---Spawn a copy of this card (based on prototype)
 ---
 ---The card will have the prototype field set (prototypes should NOT have this set)
@@ -94,23 +90,26 @@ end
 ---@param position Vector
 ---@param revealOverride ?boolean
 ---@param unrevealedShow ?boolean
+---@return boolean
 function Card:draw(position, revealOverride, unrevealedShow)
     local revealed = revealOverride or self.revealed
+    local rv = false
 
     love.graphics.push()
     love.graphics.translate(position.x, position.y)
 
-    local mx, my = love.graphics.inverseTransformPoint(love.mouse.getX(), love.mouse.getY())
+    local mx, my = love.graphics.inverseTransformPoint(love.mouse.getPosition())
 
-    if self.grabbable and Game.grabbedCard == nil and self.owner.index == 1 and mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
+    -- terrible if statement *but* it does reduce the chances I break something because of code duplication.
+    if ((self.grabbable and Game.grabbedCard == nil and self.owner.index == 1) or (Game.deckbuildingActive and isInScissor(love.mouse.getPosition()))) and mx > 0 and my > 0 and mx < CARD_WIDTH and my < CARD_HEIGHT then
         love.graphics.setColor({0.0,0.0,0.0,0.3})
         love.graphics.rectangle("fill", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
         love.graphics.translate(0, -4)
 
         Game.hoveredCard = self
         Game.hoverSpot = Vector:new(mx, my)
+        rv = true
     end
-
 
     if revealed then
         if unrevealedShow then
@@ -141,6 +140,8 @@ function Card:draw(position, revealOverride, unrevealedShow)
     love.graphics.rectangle("line", 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_ROUNDING)
 
     love.graphics.pop()
+
+    return rv
 end
 
 function Card:reveal()
@@ -194,26 +195,6 @@ function Cyclops:whenRevealed()
         card:discard()
     end
 end
-
--- ---@class Poseidon: Card
--- Poseidon = Card:makePrototype("Poseidon", 3, 5, "When Revealed: Move away an enemy card here with the lowest power.")
--- function Poseidon:whenRevealed()
---     local lowest_power_card = nil
---     local opponent = Game:opponentOf(self.owner)
---     for index, card in ipairs(self.location.cards) do
---         if card.owner == opponent then
---             if lowest_power_card == nil then
---                 lowest_power_card = card
---             elseif lowest_power_card.power > card.power then
---                 lowest_power_card = card
---             end
---         end
---     end
-
---     if lowest_power_card ~= nil then
---         Game:moveAway(lowest_power_card)
---     end
--- end
 
 ---@class Artemis: Card
 Artemis = Card:makePrototype("Artemis", 4, 6, "When Revealed: Gain +5 power if there is exactly one enemy card here.")
@@ -282,12 +263,6 @@ function Dionysus:whenRevealed()
     self:changePower(2 * yourCards)
 end
 
--- ---@class Hermes: Card
--- Hermes = Card:makePrototype("Hermes", 4, 7, "When Revealed: Moves to another location.")
--- function Hermes:whenRevealed()
---     Game:moveAway(self)
--- end
-
 ---@class Hydra: Card
 Hydra = Card:makePrototype("Hydra", 7, 11, "Add two copies to your hand when this card is discarded.")
 function Hydra:discarded()
@@ -320,16 +295,20 @@ Cards = {
     Ares,
     Medusa,
     Cyclops,
-    -- Poseidon,
     Artemis,
     Hera,
     Demeter,
     Hades,
     Hercules,
     Dionysus,
-    -- Hermes,
     Hydra,
     ShipOfTheseus,
     SwordOfDamocles
 }
 
+CardsByName = {}
+CardIndexMap = {}
+for index, card in ipairs(Cards) do
+    CardsByName[card.name] = card
+    CardIndexMap[card.name] = index
+end

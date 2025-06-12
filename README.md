@@ -16,3 +16,40 @@ I think this project has gone fairly well. I wish I had finished it sooner so th
 
 ## Assets
 All Me!
+
+
+
+## Some really cool stuff I did in the code that I want to highlight
+One thing that was awesome to work with was the way I setup the subclass sandbox and prototypes for cards. For example, creating the card "Ship of Theseus" is only this code.
+```lua
+---@class ShipOfTheseus: Card
+ShipOfTheseus = Card:makePrototype("Ship of Theseus", 2, 2, "When Revealed: Add a copy with +1 power to your hand.")
+function ShipOfTheseus:whenRevealed()
+    local card = self:spawn()
+    card:setPower(self.power + 1)
+    self.owner:addToHand(card)
+end
+```
+
+The `Card:makePrototype` function is a card factory function which gives me an object that the system recognizes as a card prototype and lets me set common values there.
+This is all possible because all non-prototype cards have their `prototype` field set, while all card prototypes leave it `nil`. This let me right my `Card:spawn` function like this:
+```lua
+---Spawn a copy of this card (based on prototype)
+---
+---The card will have the prototype field set (prototypes should NOT have this set)
+---@param owner ?Player
+---@return Card
+function Card:spawn(owner)
+    if self.prototype ~= nil then
+        return self.prototype:spawn(owner)
+    else
+        local card = {}
+        setmetatable(card, {__index=self})
+        card.prototype = self
+        card.owner = owner
+        return card
+    end
+end
+```
+
+This spawn function proved incredibly useful because I could use it to create a copy of a card, or just create a card from a prototype without worrying about carrying over non-prototype based information (for example, cards track a lot of information about placement, so if I tried to implement "Ship of Theseus" by just using the spawning card as the metatable, I'd be able to get the right stats but I'd also run into issues with values getting indexed on an existing card that shouldn't be).

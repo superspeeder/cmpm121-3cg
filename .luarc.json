@@ -5,5 +5,10 @@
     "runtime.version": "LuaJIT",
     "runtime.special": {
         "love.filesystem.load": "loadfile"
-    }
+    },
+    "diagnostics.globals": [
+        "indexArray",
+        "removeFromArray",
+        "selectRandomArrayElement"
+    ]
 }
