@@ -134,6 +134,7 @@ local function drawTextOutlined(text, x, y)
 end
 
 function Game:draw()
+    love.graphics.setFont(Game.normalfont)
     self.hoveredCard = nil
     love.graphics.clear(BACKGROUND)
 
@@ -182,7 +183,14 @@ function Game:draw()
 end
 
 function Game:update()
-    if self.deckbuildingActive then return end
+    if self.deckbuildingActive then
+        if DeckbuildingScreen:isComplete() and love.keyboard.isDown("return") then
+            self.players[1].deck = DeckbuildingScreen:getDeck()
+            self.players[1]:shuffleDeck()
+            self.deckBuilt = true
+            self.deckbuildingActive = false
+        end
+     end
     
     if self.grabbedCard ~= nil and (not love.mouse.isDown(1) or self.gameOver) then
         self:grabRelease()

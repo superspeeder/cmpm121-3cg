@@ -11,13 +11,12 @@
 I got feedback from Hunter Kingsly somewhat early on in the development of this project. He helped me to think through some of my problems at the time (namely trying to figure out how to get cards interacting with eachother correctly). I don't have any written feedback from him, though, and this was more of a problem solving/small bits of feedback than it was code review.
 I also got feedback (written) from Joshua Acosta about my code much further along in the process. He made some suggestions (namely suggesting making a turn managing system) which I plan to implement for the final version, but don't have time to implement for this one. A pdf of his feedback can be found in the `/feedback` folder of this repository.
 
-## Postmortem
-I think this project has gone fairly well. I wish I had finished it sooner so that I didn't get so stressed over it, but code wise I think it's fairly good. I think the biggest pain point in the project was making cards work properly together. I also need to do some rebalancing for the version for the final. I also want to make things look better (adding delays since I definitely do the whole turn in one frame right now since I didn't have time to make it pause and resume). If I did this over again, I would make resolving command based instead of a normal function (which I may do for the final version, it wouldn't be that hard to make the cards feed into a command queue thing, then I could animate more).
-
 ## Assets
 All Me!
 
-
+## Improvements over Project 3
+* Deckbuilding system
+* Added a few more cards to the project.
 
 ## Some really cool stuff I did in the code that I want to highlight
 One thing that was awesome to work with was the way I setup the subclass sandbox and prototypes for cards. For example, creating the card "Ship of Theseus" is only this code.

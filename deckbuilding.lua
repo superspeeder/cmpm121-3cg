@@ -1,6 +1,7 @@
 ---@class DeckbuildingUiState
 ---@field deckScroll number
 ---@field cardPoolScroll number
+---@field rPressed boolean
 
 ---@class DeckbuildingScreen
 ---@field cardsInDeck Card[]
@@ -14,7 +15,8 @@ DeckbuildingScreen = {
     owner = nil,
     uiState = {
         deckScroll = 0.0,
-        cardPoolScroll = 0.0
+        cardPoolScroll = 0.0,
+        rPressed = false,
     },
 }
 
@@ -28,7 +30,8 @@ function DeckbuildingScreen:begin(owner)
     self.owner = owner
     self.uiState = {
         deckScroll = 0.0,
-        cardPoolScroll = 0.0
+        cardPoolScroll = 0.0,
+        rPressed = false
     }
     for index, card in ipairs(Cards) do
         self.cardCounters[card.name] = 0
@@ -52,7 +55,7 @@ end
 ---Called to update the card lists when a card is chosen
 ---@param card Card | string
 function DeckbuildingScreen:onCardChosen(card)
-    if card == nil then return
+    if card == nil or #self.cardsInDeck >= NUM_CARDS_IN_DECK then return
     elseif type(card) == "string" then
         self:onCardChosen(CardsByName[card])
     else
@@ -83,11 +86,29 @@ function DeckbuildingScreen:getDeck()
     return self.cardsInDeck
 end
 
-
 ---Draw the deckbuilding screen
 function DeckbuildingScreen:draw()
     self:drawDeckPanel()
     self:drawCardBankPanel()
+
+    if love.keyboard.isDown("r") then
+        if not self.uiState.rPressed then
+            self.uiState.rPressed = true
+            self:completeRandomly();
+        end
+    else
+        self.uiState.rPressed = false
+    end
+
+    love.graphics.setColor(1,1,1,1)
+    if self:isComplete() then
+        love.graphics.setFont(Game.bigfont)
+        love.graphics.print("Press ENTER to Play", (WIDTH - Game.bigfont:getWidth("Press ENTER to Play")) / 2, HEIGHT - CARD_GAP - Game.bigfont:getHeight())
+    else
+        love.graphics.print("Click on cards in the top panel to add to deck", (WIDTH - Game.bigfont:getWidth("Press ENTER to Play")) / 2, HEIGHT - CARD_GAP - 3 * Game.normalfont:getHeight())
+        love.graphics.print("Click on cards in the bottom panel to remove from deck", (WIDTH - Game.bigfont:getWidth("Press ENTER to Play")) / 2, HEIGHT - CARD_GAP - 2 * Game.normalfont:getHeight())
+        love.graphics.print("Press R to fill the remaining space with random card choices", (WIDTH - Game.bigfont:getWidth("Press ENTER to Play")) / 2, HEIGHT - CARD_GAP - 1 * Game.normalfont:getHeight())
+    end
 end
 
 function DeckbuildingScreen:onScroll(dscroll)

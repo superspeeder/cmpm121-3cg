@@ -286,6 +286,29 @@ function SwordOfDamocles:endOfTurn()
     end
 end
 
+Midas = Card:makePrototype("Midas", 5, 3, "When Revealed: Set ALL cards here to 3 power")
+function Midas:whenRevealed()
+    for index, card in ipairs(self.location.cards) do
+        card:setPower(3)
+    end
+end
+
+Aphrodite = Card:makePrototype("Aphrodite", 4, 5, "When Revealed: Lower the power of each enemy card here by 1.")
+function Aphrodite:whenRevealed()
+    for index, card in ipairs(self.location.cards) do
+        if card.owner.index ~= self.owner.index then
+            card:setPower(card.power - 1)
+        end
+    end
+end
+
+Athena = Card:makePrototype("Athena", 4, 5, "Gain +1 power when you play another card here.")
+function Athena:cardPlayed(card)
+    if card.owner.index == self.owner.index then
+        self:setPower(self.power + 1)
+    end
+end
+
 Cards = {
     Card:makePrototype("Wooden Cow", 1, 1, "Vanilla"),
     Card:makePrototype("Pegasus", 3, 5, "Vanilla"),
